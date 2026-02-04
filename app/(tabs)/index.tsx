@@ -1,98 +1,155 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ActivityListContainer, ActivityListItem, AITipCard, Container, Screen, ScreenContent, Typography } from '@/components/ui';
+import { ActivityCard } from '@/components/ui/ActivityCard';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const router = useRouter();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <Screen>
+         <ScreenContent padding="md">
+      <Typography variant="h2" style={styles.welcomeText}>
+        Welcome Back!
+      </Typography>
+      <Typography variant="bodyText" style={styles.subtitle}>
+        Ready to crush your fitness goals today?
+      </Typography>
+      
+
+      
+  <ActivityCard
+  theme="calories"
+  value="1,840"
+  goal="/ 2,200 kcal"
+  additionalInfo="+120"
+  progress={0.84}
+  variant="large"
+  icon="flame"
+  iconBackgroundColor="#FF6B35"
+  progressColor="#FF6B35"
+  additionalInfoColor="#FF6B35"
+
+/>
+
+
+<View style={styles.activityCards}>
+  <View style={styles.cardWrapper}>
+    <ActivityCard
+      theme="custom"
+      title="Water Intake"
+      value="2.1L"
+      icon="water"
+      iconBackgroundColor="#3498DB"
+      progress={0.7}
+      variant="compact"
+      showProgressBar={true}
+      showAdditionalInfo={true}
+      additionalInfo="+300ml"
+      style={{ height: '100%' }}
+    />
+  </View>
+  <View style={styles.cardWrapper}>
+    <ActivityCard
+      theme="heart"
+      value="72 bpm"
+      subtitle="Resting"
+      variant="compact"
+      iconSize={20}
+      showGoal={false}
+      showProgressBar={false}
+      style={{ height: '100%' }}
+    />
+  </View>
+</View>
+
+
+<View style={styles.todaysLogs}>
+  <View style={styles.todaysLogsTitle}>
+
+  <Typography variant="h2" >
+   Todays Log's
+  </Typography>
+
+  <Typography variant="link" >
+   View All
+  </Typography>
+  </View>
+  <ActivityListContainer style={styles.listContainer} >
+  <ActivityListItem
+    title="Morning Run"
+    subtitle="5.2 km • 28 min"
+    icon="walk"
+    iconLibrary="ionicons"
+    onPress={() => console.log('Pressed')}
+    iconBackgroundColor="#00ff0d7f"
+  />
+  <ActivityListItem
+    title="Cycling"
+    subtitle="12.8 km • 45 min"
+    icon="bicycle"
+    iconLibrary="ionicons"
+      iconBackgroundColor="#00d9ff7f"
+
+  />
+</ActivityListContainer>
+</View>
+
+<Container paddingTop='md'>
+
+<AITipCard
+  title="Prioritize Sleep"
+  tip="Aim for 7-9 hours of quality sleep to optimize recovery and performance."
+  category="Recovery"
+  aiType="recovery"
+  aiConfidence={0.78}
+  priority="medium"
+/>
+  </Container>
+
+
+</ScreenContent>
+
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
+  welcomeText: {
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  subtitle: {
+    marginBottom: 24,
   },
-});
+  button: {
+    marginBottom: 24,
+  },
+  activityCards: {
+    width: '100%',
+    marginTop: 24,
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  cardWrapper: {
+    flex: 1,
+    height: 140, // Fixed height to accommodate larger card
+  },
+  todaysLogs: {
+    marginTop: 24,
+  
+  },
+  todaysLogsTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+      marginBottom: 16,
+  },
+  listContainer: {
+   display: 'flex',
+   flexDirection: 'column',
+   gap: 12,
+
+  },
+  });
