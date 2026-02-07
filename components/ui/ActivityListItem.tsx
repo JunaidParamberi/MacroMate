@@ -1,7 +1,6 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { Colors, Spacing } from '../../constants/theme';
+import { StyleSheet, TouchableOpacity, useColorScheme, View, ViewStyle } from 'react-native';
+import { Colors, Shadows } from '../../constants/theme';
 import { Icon, IconLibrary } from './Icon';
 import { Typography } from './Typography';
 
@@ -36,14 +35,15 @@ export const ActivityListItem: React.FC<ActivityListItemProps> = ({
   style,
   disabled = false,
 }) => {
-  const colorScheme = useColorScheme() ?? 'light';
-  const dynamicColors = Colors[colorScheme];
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
   
   // Use dynamic color if no custom color is provided
-  const finalIconColor = iconColor || Colors.textSecondary;
+  const finalIconColor = iconColor || (isDark ? Colors.neutral[400] : Colors.neutral[500]);
   
   // Use dynamic background if no custom background is provided
-  const finalBackgroundColor = backgroundColor || dynamicColors?.cardBackground || 'transparent';
+  const finalBackgroundColor = backgroundColor || themeColors.cardBackground;
   
   const Container = onPress && !disabled ? TouchableOpacity : View;
   const containerProps = onPress && !disabled ? { onPress, activeOpacity: 0.7 } : {};
@@ -54,7 +54,7 @@ export const ActivityListItem: React.FC<ActivityListItemProps> = ({
         styles.container, 
         disabled && styles.disabled, 
         { backgroundColor: finalBackgroundColor },
-        { borderColor: dynamicColors?.border || Colors.border },
+        { borderColor: themeColors.border },
         style
       ]}
       {...containerProps}
@@ -83,11 +83,11 @@ export const ActivityListItem: React.FC<ActivityListItemProps> = ({
 
       {/* Text Content */}
       <View style={styles.content}>
-        <Typography variant="bodyText" style={styles.title}>
+        <Typography variant="bodyText" style={{...styles.title, color: isDark ? Colors.neutral[50] : Colors.neutral[800]} as any}>
           {title}
         </Typography>
         {subtitle && (
-          <Typography variant="metaLabel" style={styles.subtitle}>
+          <Typography variant="metaLabel" style={{...styles.subtitle, color: isDark ? Colors.neutral[400] : Colors.neutral[500]} as any}>
             {subtitle}
           </Typography>
         )}
@@ -95,12 +95,12 @@ export const ActivityListItem: React.FC<ActivityListItemProps> = ({
 
       {/* Arrow */}
       {showArrow && (
-        <View style={styles.arrowContainer}>
+        <View style={{...styles.arrowContainer, backgroundColor: isDark ? Colors.neutral[700] : Colors.neutral[100]}}>
           <Icon
             name="chevron-right"
             library="feather"
             size={20}
-            color={Colors.textSecondary}
+            color={isDark ? Colors.neutral[400] : Colors.neutral[500]}
           />
         </View>
       )}
@@ -112,35 +112,40 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    borderWidth: 1,
-    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    ...Shadows.sm,
   },
   disabled: {
     opacity: 0.5,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.md,
+    marginRight: 16,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
   },
   title: {
-    fontWeight: '500',
-    marginBottom: 2,
+    fontWeight: '600',
+    fontSize: 16,
+    marginBottom: 4,
   },
   subtitle: {
-    color: Colors.textSecondary,
+    fontSize: 13,
   },
   arrowContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
   },
 });

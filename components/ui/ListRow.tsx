@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, useColorScheme, View, ViewStyle } from 'react-native';
 import { Colors } from '../../constants/theme';
 import { Typography } from './Typography';
 
@@ -22,6 +22,9 @@ export const ListRow: React.FC<ListRowProps> = ({
   style,
   rightComponent,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  
   const containerStyle = [
     styles.container,
     style,
@@ -57,7 +60,7 @@ export const ListRow: React.FC<ListRowProps> = ({
         <View style={styles.rightContent}>
           {rightComponent}
           {showArrow && (
-            <ChevronRightIcon size={20} color={Colors.textSecondary} />
+            <ChevronRightIcon size={20} color={isDark ? Colors.neutral[400] : Colors.textSecondary} />
           )}
         </View>
       )}

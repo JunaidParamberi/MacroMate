@@ -1,6 +1,5 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { Text, TextStyle } from 'react-native';
+import { Text, TextStyle, useColorScheme } from 'react-native';
 import { Colors, Typography as TypographyStyles } from '../../constants/theme';
 
 export type TypographyVariant = 
@@ -30,23 +29,24 @@ export const Typography: React.FC<TypographyProps> = ({
   numberOfLines,
   textAlign = 'auto',
 }) => {
-  const colorScheme = useColorScheme() ?? 'light';
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
   
   const getTextStyle = (): TextStyle => {
     const baseStyle = TypographyStyles[variant];
-    const dynamicColors = Colors[colorScheme];
     
-    // Use dynamic colors based on the variant
+    // Dynamic colors based on theme
     let dynamicColor = color;
     if (!color) {
       switch (variant) {
         case 'metaLabel':
         case 'caption':
         case 'link':
-          dynamicColor = Colors.textSecondary;
+          dynamicColor = isDark ? Colors.neutral[400] : Colors.textSecondary;
           break;
         default:
-          dynamicColor = dynamicColors?.text || Colors.text;
+          dynamicColor = themeColors.text;
           break;
       }
     }

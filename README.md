@@ -1,51 +1,96 @@
-# Welcome to your Expo app 👋
+# MacroMate
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A comprehensive fitness tracking app built with Expo and React Native to help you monitor your health, track activities, and achieve your fitness goals.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Activity Tracking** - Log and monitor your workouts, runs, cycling, and more
+- **Calorie Counter** - Track daily calorie intake and expenditure with progress visualization
+- **Water Intake Monitor** - Stay hydrated with water consumption tracking
+- **Heart Rate Tracking** - Monitor your resting and active heart rate
+- **Goals Management** - Set and track personalized fitness goals
+- **AI-Powered Tips** - Get personalized recovery and fitness recommendations
+- **Progress Dashboard** - Visualize your fitness journey with charts and statistics
+
+## Tech Stack
+
+- **Framework**: Expo with React Native
+- **Language**: TypeScript
+- **Routing**: Expo Router (file-based routing)
+- **UI Components**: Custom component library with themed elements
+- **Animations**: Spring-based animations for smooth interactions
+
+## Project Structure
+
+```
+MacroMate/
+├── app/                    # Main application code (Expo Router)
+│   └── (tabs)/             # Tab-based navigation
+│       ├── index.tsx       # Home/Dashboard screen
+│       ├── activity.tsx    # Activity tracking screen
+│       ├── log.tsx         # Workout logging screen
+│       ├── goals.tsx       # Goals management screen
+│       └── profile.tsx     # User profile screen
+├── components/
+│   ├── ui/                 # UI components (ActivityCard, Charts, etc.)
+│   └── ...                 # Shared components
+├── constants/              # App constants and configuration
+├── hooks/                  # Custom React hooks
+└── assets/                 # Images and fonts
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (LTS version)
+- npm or yarn
+- Expo CLI (`npm install -g @expo/cli`)
+
+### Installation
+
+1. Clone the repository and navigate to the project
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Start the development server:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Run the app on your preferred platform:
+   - Press `i` for iOS simulator
+   - Press `a` for Android emulator
+   - Scan QR code with Expo Go app for physical device
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Development
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Available Scripts
 
-## Get a fresh project
+- `npx expo start` - Start the development server
+- `npm run reset-project` - Reset to a fresh project state
 
-When you're ready, run:
+### Custom UI Components
 
-```bash
-npm run reset-project
-```
+MacroMate includes a comprehensive UI component library:
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- **ActivityCard** - Configurable cards for displaying fitness metrics
+- **Charts** - Progress visualization components
+- **Typography** - Consistent text styling
+- **Screen/ScreenContent** - Layout containers
+- **Button** - Interactive action buttons
+- **Card** - Content containers with consistent styling
 
-## Learn more
+## Learn More
 
-To learn more about developing your project with Expo, look at the following resources:
+- [Expo documentation](https://docs.expo.dev/)
+- [React Native documentation](https://reactnative.dev/)
+- [Expo Router documentation](https://docs.expo.dev/router/introduction/)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## License
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# MacroMate
+MIT License

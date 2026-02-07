@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Animated, ViewStyle } from 'react-native';
+import { Animated, StyleSheet, View, ViewStyle, useColorScheme } from 'react-native';
 import { Colors } from '../../constants/theme';
 
 // Spinner Loader
@@ -12,10 +12,13 @@ export interface SpinnerProps {
 
 export const Spinner: React.FC<SpinnerProps> = ({
   size = 24,
-  color = Colors.emeraldGreen,
+  color,
   style,
   strokeWidth = 2,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.brand.primaryLight : Colors.brand.primary);
   const spinValue = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -43,7 +46,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
             cx="12"
             cy="12"
             r={10 - strokeWidth / 2}
-            stroke={color}
+            stroke={finalColor}
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray="60"
@@ -65,10 +68,13 @@ export interface PulseProps {
 
 export const Pulse: React.FC<PulseProps> = ({
   size = 8,
-  color = Colors.emeraldGreen,
+  color,
   style,
   count = 3,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.brand.primaryLight : Colors.brand.primary);
   const createPulseAnimation = (delay: number) => {
     const animatedValue = React.useRef(new Animated.Value(0)).current;
 
@@ -116,7 +122,7 @@ export const Pulse: React.FC<PulseProps> = ({
               {
                 width: size,
                 height: size,
-                backgroundColor: color,
+                backgroundColor: finalColor,
                 borderRadius: size / 2,
                 transform: [{ scale }],
                 opacity,
@@ -140,11 +146,14 @@ export interface DotsProps {
 
 export const Dots: React.FC<DotsProps> = ({
   size = 8,
-  color = Colors.emeraldGreen,
+  color,
   style,
   count = 3,
   spacing = 4,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.brand.primaryLight : Colors.brand.primary);
   const createDotAnimation = (delay: number) => {
     const animatedValue = React.useRef(new Animated.Value(0)).current;
 
@@ -188,7 +197,7 @@ export const Dots: React.FC<DotsProps> = ({
               {
                 width: size,
                 height: size,
-                backgroundColor: color,
+                backgroundColor: finalColor,
                 borderRadius: size / 2,
                 transform: [{ translateY }],
                 marginLeft: index > 0 ? spacing : 0,
@@ -214,11 +223,14 @@ export interface BarProps {
 export const Bar: React.FC<BarProps> = ({
   width = 4,
   height = 20,
-  color = Colors.emeraldGreen,
+  color,
   style,
   count = 5,
   spacing = 2,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.brand.primaryLight : Colors.brand.primary);
   const createBarAnimation = (delay: number) => {
     const animatedValue = React.useRef(new Animated.Value(0)).current;
 
@@ -262,7 +274,7 @@ export const Bar: React.FC<BarProps> = ({
               {
                 width,
                 height,
-                backgroundColor: color,
+                backgroundColor: finalColor,
                 borderRadius: width / 2,
                 transform: [{ scaleY }],
                 marginLeft: index > 0 ? spacing : 0,
@@ -285,10 +297,13 @@ export interface CircleProps {
 
 export const Circle: React.FC<CircleProps> = ({
   size = 40,
-  color = Colors.emeraldGreen,
+  color,
   style,
   strokeWidth = 3,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.brand.primaryLight : Colors.brand.primary);
   const scaleValue = React.useRef(new Animated.Value(0)).current;
   const rotateValue = React.useRef(new Animated.Value(0)).current;
 
@@ -344,7 +359,7 @@ export const Circle: React.FC<CircleProps> = ({
             width: size,
             height: size,
             borderWidth: strokeWidth,
-            borderColor: color,
+            borderColor: finalColor,
             borderRadius: size / 2,
             borderTopColor: 'transparent',
             borderRightColor: 'transparent',
@@ -370,6 +385,9 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
   loaderType = 'spinner',
   loaderProps = {},
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  
   if (!visible) return null;
 
   const renderLoader = () => {
@@ -388,7 +406,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
   };
 
   return (
-    <View style={styles.fullScreenLoader}>
+    <View style={[styles.fullScreenLoader, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)' }]}>
       <View style={styles.fullScreenLoaderContent}>
         {renderLoader()}
         {message && (
@@ -415,20 +433,24 @@ export interface InlineLoaderProps {
 export const InlineLoader: React.FC<InlineLoaderProps> = ({
   visible = true,
   size = 16,
-  color = Colors.emeraldGreen,
+  color,
   type = 'spinner',
   style,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.brand.primaryLight : Colors.brand.primary);
+  
   if (!visible) return null;
 
   const renderLoader = () => {
     switch (type) {
       case 'pulse':
-        return <Pulse size={size} color={color} count={2} />;
+        return <Pulse size={size} color={finalColor} count={2} />;
       case 'dots':
-        return <Dots size={size} color={color} count={3} />;
+        return <Dots size={size} color={finalColor} count={3} />;
       default:
-        return <Spinner size={size} color={color} strokeWidth={2} />;
+        return <Spinner size={size} color={finalColor} strokeWidth={2} />;
     }
   };
 
@@ -503,7 +525,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     textAlign: 'center',
-    color: Colors.textSecondary,
+    // color set dynamically inline
   },
   inlineLoader: {
     alignItems: 'center',

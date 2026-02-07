@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { Components } from '../../constants/theme';
+import { StyleSheet, TouchableOpacity, useColorScheme, View, ViewStyle } from 'react-native';
+import { Colors, Shadows, Spacing } from '../../constants/theme';
 
 export type CardVariant = 'master' | 'metric';
 
@@ -17,10 +17,15 @@ export const Card: React.FC<CardProps> = ({
   style,
   onPress,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  
   const getCardStyle = (): ViewStyle => {
-    const baseStyle = Components.card[variant];
     return {
-      ...baseStyle,
+      backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral.white,
+      borderRadius: 16,
+      padding: Spacing.cardPadding,
+      ...Shadows.sm,
     };
   };
 

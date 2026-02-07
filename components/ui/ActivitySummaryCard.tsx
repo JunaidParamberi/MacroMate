@@ -1,6 +1,5 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { StyleSheet, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, TextStyle, TouchableOpacity, useColorScheme, View, ViewStyle } from 'react-native';
 import { Colors, Spacing } from '../../constants/theme';
 import { Card } from './Card';
 import { Icon, IconLibrary } from './Icon';
@@ -60,31 +59,32 @@ export const AITipCard: React.FC<AITipCardProps> = ({
   disabled = false,
   style,
 }) => {
-  const colorScheme = useColorScheme() ?? 'light';
-  const dynamicColors = Colors[colorScheme];
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
   
   // Dynamic colors based on AI type and priority
   const getAIColors = () => {
     switch (aiType) {
       case 'nutrition':
-        return { bg: '#E8F5E8', border: '#4CAF50', icon: '#4CAF50' };
+        return { bg: isDark ? '#1B5E20' : '#E8F5E8', border: isDark ? '#4CAF50' : '#4CAF50', icon: isDark ? '#81C784' : '#4CAF50' };
       case 'exercise':
-        return { bg: '#E3F2FD', border: '#2196F3', icon: '#2196F3' };
+        return { bg: isDark ? '#0D47A1' : '#E3F2FD', border: isDark ? '#2196F3' : '#2196F3', icon: isDark ? '#64B5F6' : '#2196F3' };
       case 'recovery':
-        return { bg: '#F3E5F5', border: '#9C27B0', icon: '#9C27B0' };
+        return { bg: isDark ? '#4A148C' : '#F3E5F5', border: isDark ? '#9C27B0' : '#9C27B0', icon: isDark ? '#BA68C8' : '#9C27B0' };
       case 'motivation':
-        return { bg: '#FFF3E0', border: '#FF9800', icon: '#FF9800' };
+        return { bg: isDark ? '#E65100' : '#FFF3E0', border: isDark ? '#FF9800' : '#FF9800', icon: isDark ? '#FFB74D' : '#FF9800' };
       default:
-        return { bg: '#E8EAF6', border: '#3F51B5', icon: '#3F51B5' };
+        return { bg: isDark ? '#1A237E' : '#E8EAF6', border: isDark ? '#3F51B5' : '#3F51B5', icon: isDark ? '#7986CB' : '#3F51B5' };
     }
   };
 
   const getPriorityColors = () => {
     switch (priority) {
       case 'high':
-        return { bg: '#FFEBEE', border: '#F44336', icon: '#F44336' };
+        return { bg: isDark ? '#B71C1C' : '#FFEBEE', border: isDark ? '#F44336' : '#F44336', icon: isDark ? '#E57373' : '#F44336' };
       case 'low':
-        return { bg: '#F1F8E9', border: '#8BC34A', icon: '#8BC34A' };
+        return { bg: isDark ? '#33691E' : '#F1F8E9', border: isDark ? '#8BC34A' : '#8BC34A', icon: isDark ? '#AED581' : '#8BC34A' };
       default:
         return getAIColors();
     }
@@ -93,7 +93,7 @@ export const AITipCard: React.FC<AITipCardProps> = ({
   const aiColors = priority === 'medium' ? getAIColors() : getPriorityColors();
   
   // Dynamic colors
-  const finalBackgroundColor = backgroundColor || dynamicColors?.cardBackground || Colors.pureWhite;
+  const finalBackgroundColor = backgroundColor || themeColors.cardBackground;
   const finalBorderColor = borderColor || aiColors.border;
   const finalIconColor = iconColor || aiColors.icon;
   const finalIconBg = iconBackgroundColor || aiColors.bg;
@@ -150,7 +150,7 @@ export const AITipCard: React.FC<AITipCardProps> = ({
               {title}
             </Typography>
             {category && (
-              <Typography variant="metaLabel" style={styles.category}>
+              <Typography variant="metaLabel" style={{color: isDark ? Colors.neutral[400] : Colors.textSecondary}}>
                 {category}
               </Typography>
             )}
@@ -166,17 +166,17 @@ export const AITipCard: React.FC<AITipCardProps> = ({
 
         {/* Tip content */}
         <View style={styles.tipContainer}>
-          <Typography variant="bodyText" style={styles.tipText}>
+          <Typography variant="bodyText" style={{lineHeight: 20, color: isDark ? Colors.neutral[300] : Colors.text}}>
             {tip}
           </Typography>
         </View>
 
         {/* Confidence indicator */}
         <View style={styles.confidenceContainer}>
-          <Typography variant="caption" style={styles.confidenceLabel}>
+          <Typography variant="caption" style={{color: isDark ? Colors.neutral[400] : Colors.textSecondary, marginRight: Spacing.sm, minWidth: 80}}>
             AI Confidence
           </Typography>
-          <View style={styles.confidenceBar}>
+          <View style={{flex: 1, height: 4, backgroundColor: isDark ? Colors.neutral[700] : Colors.borderGray, borderRadius: 2, overflow: 'hidden', marginRight: Spacing.sm}}>
             <View 
               style={[
                 styles.confidenceFill,
@@ -187,7 +187,7 @@ export const AITipCard: React.FC<AITipCardProps> = ({
               ]} 
             />
           </View>
-          <Typography variant="caption" style={styles.confidenceValue}>
+          <Typography variant="caption" style={{color: isDark ? Colors.neutral[400] : Colors.textSecondary, minWidth: 35, textAlign: 'right'}}>
             {Math.round(aiConfidence * 100)}%
           </Typography>
         </View>
@@ -243,16 +243,16 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   category: {
-    color: Colors.textSecondary,
+    // color set dynamically inline
   },
   aiBadge: {
-    backgroundColor: Colors.emeraldGreen,
+    backgroundColor: Colors.brand.primary,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
   aiBadgeText: {
-    color: Colors.pureWhite,
+    color: Colors.neutral.white,
     fontWeight: '600',
     fontSize: 10,
   },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   tipText: {
     lineHeight: 20,
-    color: Colors.text,
+    // color set dynamically inline
   },
   confidenceContainer: {
     flexDirection: 'row',
@@ -269,14 +269,14 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   confidenceLabel: {
-    color: Colors.textSecondary,
+    // color set dynamically inline
     marginRight: Spacing.sm,
     minWidth: 80,
   },
   confidenceBar: {
     flex: 1,
     height: 4,
-    backgroundColor: Colors.borderGray,
+    // backgroundColor set dynamically inline
     borderRadius: 2,
     overflow: 'hidden',
     marginRight: Spacing.sm,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   confidenceValue: {
-    color: Colors.textSecondary,
+    // color set dynamically inline
     minWidth: 35,
     textAlign: 'right',
   },

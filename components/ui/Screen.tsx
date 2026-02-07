@@ -1,6 +1,5 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { ScrollView, ScrollViewProps, StyleSheet, View, ViewStyle } from 'react-native';
+import { ScrollView, ScrollViewProps, StyleSheet, useColorScheme, View, ViewStyle } from 'react-native';
 import { Colors, Spacing } from '../../constants/theme';
 import { SafeArea } from './SafeArea';
 
@@ -25,10 +24,13 @@ export const Screen: React.FC<ScreenProps> = ({
   showsVerticalScrollIndicator = false,
   keyboardShouldPersistTaps = 'handled',
 }) => {
-  const colorScheme = useColorScheme() ?? 'light';
-  const dynamicBackgroundColor = backgroundColor || Colors[colorScheme]?.background || Colors.background;
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
+  const dynamicBackgroundColor = backgroundColor || themeColors.background;
   const contentStyle = [
     styles.content,
+    { paddingBottom: 70 }, // Less padding to account for tab bar
     contentContainerStyle,
   ];
 
@@ -77,13 +79,19 @@ export const ScreenHeader: React.FC<HeaderProps> = ({
   leftComponent,
   rightComponent,
   style,
-  backgroundColor = Colors.background,
+  backgroundColor,
   showBorder = true,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
+  const headerBg = backgroundColor || themeColors.background;
+  const borderColor = showBorder ? themeColors.border : 'transparent';
+
   return (
     <View style={[
       styles.header,
-      { backgroundColor, borderBottomColor: showBorder ? Colors.border : 'transparent' },
+      { backgroundColor: headerBg, borderBottomColor: borderColor },
       style
     ]}>
       {leftComponent && <View style={styles.headerLeft}>{leftComponent}</View>}
@@ -138,13 +146,19 @@ export interface FooterProps {
 export const ScreenFooter: React.FC<FooterProps> = ({
   children,
   style,
-  backgroundColor = Colors.background,
+  backgroundColor,
   showBorder = true,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
+  const footerBg = backgroundColor || themeColors.background;
+  const borderColor = showBorder ? themeColors.border : 'transparent';
+
   return (
     <View style={[
       styles.footer,
-      { backgroundColor, borderTopColor: showBorder ? Colors.border : 'transparent' },
+      { backgroundColor: footerBg, borderTopColor: borderColor },
       style
     ]}>
       {children}

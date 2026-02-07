@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle, useColorScheme } from 'react-native';
 import { Colors } from '../../constants/theme';
 import { FitnessIcons } from './Icon';
 import { Typography } from './Typography';
@@ -18,10 +18,13 @@ export const DataToken: React.FC<DataTokenProps> = ({
   value,
   label,
   icon,
-  color = Colors.charcoal,
+  color,
   size = 'medium',
   style,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.neutral[300] : Colors.charcoal);
   const getSizeStyles = () => {
     switch (size) {
       case 'small':
@@ -53,13 +56,13 @@ export const DataToken: React.FC<DataTokenProps> = ({
       <View style={styles.tokenContent}>
         <Typography 
           variant="bodyText" 
-          style={[styles.tokenValue, sizeStyles.value, { color } as any]}
+          style={{...styles.tokenValue, ...sizeStyles.value, color: finalColor} as any}
         >
           {value}
         </Typography>
         <Typography 
           variant="metaLabel" 
-          style={[styles.tokenLabel, sizeStyles.label] as any}
+          style={{...styles.tokenLabel, ...sizeStyles.label} as any}
         >
           {label}
         </Typography>
@@ -87,15 +90,18 @@ export const Stats: React.FC<StatsProps> = ({
   changeLabel,
   icon,
   trend = 'neutral',
-  color = Colors.charcoal,
+  color,
   style,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || (isDark ? Colors.neutral[300] : Colors.charcoal);
   const getTrendIcon = () => {
     switch (trend) {
       case 'up':
-        return <FitnessIcons.ArrowUp size={16} color={Colors.emeraldGreen} />;
+        return <FitnessIcons.ArrowUp size={16} color={Colors.brand.primary} />;
       case 'down':
-        return <FitnessIcons.ArrowDown size={16} color={Colors.borderGray} />;
+        return <FitnessIcons.ArrowDown size={16} color={isDark ? Colors.neutral[500] : Colors.borderGray} />;
       default:
         return null;
     }
@@ -104,11 +110,11 @@ export const Stats: React.FC<StatsProps> = ({
   const getChangeColor = () => {
     switch (trend) {
       case 'up':
-        return Colors.emeraldGreen;
+        return Colors.brand.primary;
       case 'down':
-        return Colors.borderGray;
+        return isDark ? Colors.neutral[500] : Colors.borderGray;
       default:
-        return Colors.textSecondary;
+        return isDark ? Colors.neutral[400] : Colors.textSecondary;
     }
   };
 
@@ -116,7 +122,7 @@ export const Stats: React.FC<StatsProps> = ({
     <View style={[styles.statsContainer, style]}>
       {icon && <View style={styles.statsIcon}>{icon}</View>}
       <View style={styles.statsContent}>
-        <Typography variant="h1" style={[styles.statsValue, { color }] as any}>
+        <Typography variant="h1" style={{...styles.statsValue, color: finalColor} as any}>
           {value}
         </Typography>
         <Typography variant="metaLabel" style={styles.statsLabel}>
@@ -152,11 +158,16 @@ export interface LabelProps {
 export const Label: React.FC<LabelProps> = ({
   text,
   variant = 'default',
-  color = Colors.charcoal,
-  backgroundColor = Colors.borderGray,
+  color,
+  backgroundColor,
   size = 'medium',
   style,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  
+  const finalColor = color || (isDark ? Colors.neutral[300] : Colors.charcoal);
+  const finalBgColor = backgroundColor || (isDark ? Colors.neutral[700] : Colors.borderGray);
   const getVariantStyles = () => {
     switch (variant) {
       case 'badge':
@@ -199,13 +210,13 @@ export const Label: React.FC<LabelProps> = ({
         styles.labelContainer,
         variantStyle,
         sizeStyle.padding,
-        { backgroundColor },
+        { backgroundColor: finalBgColor },
         style,
       ]}
     >
       <Typography
         variant="caption"
-        style={[sizeStyle.text, { color: color || 'black' }] as any}
+        style={{...sizeStyle.text, color: finalColor} as any}
       >
         {text}
       </Typography>
@@ -235,10 +246,13 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   progress,
   trend,
   change,
-  color = Colors.emeraldGreen,
+  color,
   onPress,
   style,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalColor = color || Colors.brand.primary;
   return (
     <View style={[styles.metricCard, style]}>
       <View style={styles.metricHeader}>
@@ -256,20 +270,17 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </View>
       
       <View style={styles.metricContent}>
-        <Typography variant="h2" style={[styles.metricValue, { color }] as any}>
+        <Typography variant="h2" style={{...styles.metricValue, color: finalColor} as any}>
           {value}
         </Typography>
         
         {change !== undefined && (
           <View style={styles.metricChange}>
-            {trend === 'up' && <FitnessIcons.ArrowUp size={16} color={Colors.emeraldGreen} />}
-            {trend === 'down' && <FitnessIcons.ArrowDown size={16} color={Colors.borderGray} />}
+            {trend === 'up' && <FitnessIcons.ArrowUp size={16} color={Colors.brand.primary} />}
+            {trend === 'down' && <FitnessIcons.ArrowDown size={16} color={isDark ? Colors.neutral[500] : Colors.borderGray} />}
             <Typography 
               variant="caption" 
-              style={[
-                styles.metricChangeText,
-                { color: trend === 'up' ? Colors.emeraldGreen : Colors.borderGray } as any
-              ]}
+              style={{...styles.metricChangeText, color: trend === 'up' ? Colors.brand.primary : (isDark ? Colors.neutral[500] : Colors.borderGray)} as any}
             >
               {change > 0 ? '+' : ''}{change}%
             </Typography>
@@ -415,7 +426,7 @@ const styles = StyleSheet.create({
 
   // Metric Card styles
   metricCard: {
-    backgroundColor: Colors.pureWhite,
+    backgroundColor: Colors.neutral.white,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.borderGray,

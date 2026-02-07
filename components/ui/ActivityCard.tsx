@@ -1,50 +1,36 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
-import { Colors, Spacing } from '../../constants/theme';
-import { Card } from './Card';
+import { Pressable, StyleSheet, useColorScheme, View, ViewStyle } from 'react-native';
+import { BorderRadius, Colors, Shadows, Spacing } from '../../constants/theme';
 import { Icon, IconLibrary } from './Icon';
 import { ProgressBar } from './ProgressBar';
 import { Typography } from './Typography';
 
-export type ActivityCardVariant = 'large' | 'small' | 'compact';
+export type ActivityCardVariant = 'large' | 'small' | 'compact' | 'featured';
 export type ActivityCardTheme = 'calories' | 'steps' | 'active' | 'water' | 'sleep' | 'weight' | 'heart' | 'custom';
 
 export interface ActivityCardProps {
-  // Basic props
   title?: string;
   value: string;
   subtitle?: string;
-  
-  // Variant and theme
   variant?: ActivityCardVariant;
   theme?: ActivityCardTheme;
-  
-  // Icon customization
   icon?: string;
   iconLibrary?: IconLibrary;
   iconBackgroundColor?: string;
   iconSize?: number;
-  
-  // Progress
   progress?: number;
   progressColor?: string;
   showProgressBar?: boolean;
-  
-  // Additional info
   goal?: string;
   additionalInfo?: string;
   additionalInfoColor?: string;
-  
-  // Styling
   style?: ViewStyle;
   onPress?: () => void;
-  
-  // Display options
   showIcon?: boolean;
   showTitle?: boolean;
   showGoal?: boolean;
   showAdditionalInfo?: boolean;
+  featured?: boolean;
 }
 
 const getThemeConfig = (theme: ActivityCardTheme) => {
@@ -117,6 +103,13 @@ const getThemeConfig = (theme: ActivityCardTheme) => {
 
 const getVariantStyles = (variant: ActivityCardVariant) => {
   switch (variant) {
+    case 'featured':
+      return {
+        minHeight: 140,
+        valueVariant: 'h2' as const,
+        iconSize: 28,
+        titleVariant: 'bodyText' as const,
+      };
     case 'large':
       return {
         minHeight: 120,
@@ -163,16 +156,19 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   showProgressBar = true,
   goal,
   additionalInfo,
-  additionalInfoColor = Colors.emeraldGreen,
+  additionalInfoColor = Colors.brand.primary,
   style,
   onPress,
   showIcon = true,
   showTitle = true,
   showGoal = true,
   showAdditionalInfo = true,
+  featured = false,
 }) => {
-  const colorScheme = useColorScheme() ?? 'light';
-  const dynamicColors = Colors[colorScheme];
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
+  
   const themeConfig = getThemeConfig(theme);
   const variantConfig = getVariantStyles(variant);
   
@@ -182,94 +178,105 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   const cardProgressColor = progressColor || themeConfig.defaultProgressColor;
   const cardIconSize = iconSize || variantConfig.iconSize;
 
-  // Extract only the style properties for the Card component
-  const cardStyle: ViewStyle = {
-    minHeight: variantConfig.minHeight,
-  };
+  const isFeatured = variant === 'featured' || featured;
+  
+  // Dynamic card background
+  const cardBackgroundColor = isFeatured 
+    ? cardIconBg + (isDark ? '20' : '10')
+    : themeColors.cardBackground;
 
-  // Filter out undefined styles
-  const cardStyles = [cardStyle, style].filter(Boolean) as ViewStyle[];
+  // Dynamic text colors
+  const titleColor = isFeatured 
+    ? (isDark ? Colors.neutral[200] : Colors.neutral[800])
+    : (isDark ? Colors.neutral[400] : Colors.neutral[600]);
+  
+  const valueColor = isFeatured 
+    ? (isDark ? Colors.neutral.white : Colors.neutral[800])
+    : (isDark ? Colors.neutral[50] : Colors.neutral[800]);
+
+  const subtitleColor = isDark ? Colors.neutral[400] : Colors.neutral[500];
 
   return (
-    <Card variant="metric" style={cardStyles} onPress={onPress}>
-      {/* Header with icon and title */}
-      {(showIcon || showTitle) && (
-        <View style={styles.header}>
-          {showIcon && (
-            <View style={[styles.iconContainer, { backgroundColor: cardIconBg }]}>
-              <Icon 
-                name={cardIcon} 
-                library={iconLibrary} 
-                size={cardIconSize} 
-                color={Colors.pureWhite} 
-              />
-            </View>
-          )}
-          {showTitle && cardTitle && (
-            <Typography 
-              variant={variantConfig.titleVariant} 
-              style={styles.title}
-            >
-              {cardTitle}
+    <Pressable 
+      onPress={onPress} 
+      style={[styles.container, isFeatured && styles.featuredContainer, { backgroundColor: cardBackgroundColor }, style]}
+    >
+      <View style={styles.cardInner}>
+        {/* Header with icon and title */}
+        {(showIcon || showTitle) && (
+          <View style={styles.header}>
+            {showIcon && (
+              <View style={[styles.iconContainer, { backgroundColor: cardIconBg + '20' }]}>
+                <Icon name={cardIcon} library={iconLibrary} size={cardIconSize} color={cardIconBg} />
+              </View>
+            )}
+            {showTitle && cardTitle && (
+              <Typography variant={variantConfig.titleVariant} style={{...styles.title, color: titleColor} as any}>
+                {cardTitle}
+              </Typography>
+            )}
+          </View>
+        )}
+
+        {/* Main value */}
+        <Typography variant={variantConfig.valueVariant} style={{...styles.value, color: valueColor} as any}>
+          {value}
+        </Typography>
+
+        {/* Subtitle */}
+        {subtitle && (
+          <Typography variant="caption" style={{...styles.subtitle, color: subtitleColor} as any}>
+            {subtitle}
+          </Typography>
+        )}
+
+        {/* Goal text */}
+        {showGoal && goal && (
+          <Typography variant="caption" style={{...styles.goal, color: subtitleColor} as any}>
+            {goal}
+          </Typography>
+        )}
+
+        {/* Progress bar */}
+        {showProgressBar && progress > 0 && (
+          <ProgressBar progress={progress} style={styles.progressBar} progressColor={cardProgressColor} />
+        )}
+
+        {/* Additional info */}
+        {showAdditionalInfo && additionalInfo && (
+          <View style={styles.additionalInfoContainer}>
+            <Typography variant="caption" style={{...styles.additionalInfo, color: additionalInfoColor} as any}>
+              {additionalInfo}
             </Typography>
-          )}
-        </View>
-      )}
-
-      {/* Main value */}
-      <Typography 
-        variant={variantConfig.valueVariant} 
-        style={styles.value}
-      >
-        {value}
-      </Typography>
-
-      {/* Subtitle */}
-      {subtitle && (
-        <Typography variant="caption" style={styles.subtitle}>
-          {subtitle}
-        </Typography>
-      )}
-
-      {/* Goal text */}
-      {showGoal && goal && (
-        <Typography variant="caption" style={styles.goal}>
-          {goal}
-        </Typography>
-      )}
-
-      {/* Progress bar */}
-      {showProgressBar && progress > 0 && (
-        <ProgressBar
-          progress={progress}
-          style={styles.progressBar}
-          progressColor={cardProgressColor}
-        />
-      )}
-
-      {/* Additional info */}
-      {showAdditionalInfo && additionalInfo && (
-        <Typography 
-          variant="caption" 
-          style={[styles.additionalInfo, { color: additionalInfoColor }] as unknown as TextStyle}
-        >
-          {additionalInfo}
-        </Typography>
-      )}
-    </Card>
+          </View>
+        )}
+      </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    borderRadius: BorderRadius.card,
+    overflow: 'hidden',
+    ...Shadows.md,
+  },
+  featuredContainer: {
+    ...Shadows.lg,
+  },
+  cardInner: {
+    padding: Spacing.cardPadding,
+    minHeight: 100,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: Spacing.sm,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
@@ -279,21 +286,29 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   value: {
-    fontWeight: 'bold',
-    marginBottom: Spacing.xs,
+    fontWeight: '700',
+    fontSize: 28,
+    marginBottom: 4,
   },
   subtitle: {
-    color: Colors.textSecondary,
-    marginBottom: Spacing.xs,
+    fontSize: 12,
+    marginBottom: 4,
   },
   goal: {
-    color: Colors.textSecondary,
+    fontSize: 12,
     marginBottom: Spacing.sm,
   },
   progressBar: {
-    marginBottom: Spacing.sm,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  additionalInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
   },
   additionalInfo: {
-    fontWeight: '500',
+    fontWeight: '600',
+    fontSize: 13,
   },
 });

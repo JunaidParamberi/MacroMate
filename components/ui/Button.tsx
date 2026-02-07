@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TextStyle, TouchableOpacity, useColorScheme, View, ViewStyle } from 'react-native';
 import { Colors, Components, Spacing } from '../../constants/theme';
 import { Icon, IconProps } from './Icon';
 import { InlineLoader } from './Loader';
@@ -37,6 +37,9 @@ export const Button: React.FC<ButtonProps> = ({
   iconProps,
   size = 'medium',
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
   const getButtonStyle = (): ViewStyle => {
     const baseStyle = Components.button[variant === 'icon' || variant === 'iconOnly' ? 'primary' : variant];
     const sizeStyle = getSizeStyles();
@@ -50,14 +53,14 @@ export const Button: React.FC<ButtonProps> = ({
         paddingVertical: Spacing.sm,
         minWidth: 'auto',
       }),
-      ...(disabled && { backgroundColor: Colors.borderGray }),
+      ...(disabled && { backgroundColor: isDark ? Colors.neutral[700] : Colors.borderGray }),
     };
   };
 
   const getTextStyle = (): TextStyle => {
     const baseStyle = variant === 'primary' 
-      ? { color: Colors.pureWhite, fontWeight: '600' as const }
-      : { color: Colors.charcoal, fontWeight: '600' as const };
+      ? { color: Colors.neutral.white, fontWeight: '600' as const }
+      : { color: isDark ? Colors.neutral[200] : Colors.charcoal, fontWeight: '600' as const };
     
     const sizeStyle = getTextSizeStyles();
     
@@ -110,7 +113,7 @@ export const Button: React.FC<ButtonProps> = ({
         <InlineLoader
           visible={true}
           size={loaderSize}
-          color={variant === 'primary' ? Colors.pureWhite : Colors.charcoal}
+          color={variant === 'primary' ? Colors.neutral.white : (isDark ? Colors.neutral[200] : Colors.charcoal)}
           type={loaderType}
         />
       );
@@ -167,7 +170,7 @@ export const IconOnlyButton: React.FC<Omit<ButtonProps, 'variant' | 'title'>> = 
 // Pre-styled icon buttons
 export const BackButton: React.FC<{ onPress: () => void; color?: string }> = ({ 
   onPress, 
-  color = Colors.charcoal 
+  color 
 }) => (
   <IconOnlyButton
     onPress={onPress}
@@ -177,7 +180,7 @@ export const BackButton: React.FC<{ onPress: () => void; color?: string }> = ({
 
 export const CloseButton: React.FC<{ onPress: () => void; color?: string }> = ({ 
   onPress, 
-  color = Colors.charcoal 
+  color 
 }) => (
   <IconOnlyButton
     onPress={onPress}
@@ -187,7 +190,7 @@ export const CloseButton: React.FC<{ onPress: () => void; color?: string }> = ({
 
 export const AddButton: React.FC<{ onPress: () => void; color?: string }> = ({ 
   onPress, 
-  color = Colors.emeraldGreen 
+  color 
 }) => (
   <IconOnlyButton
     onPress={onPress}

@@ -5,51 +5,103 @@
 
 import { Platform } from 'react-native';
 
-// Color Palette from Design System
+// Modern Color Palette
+export const brand = {
+  primary: '#10B981',
+  primaryLight: '#34D399',
+  primaryDark: '#059669',
+  secondary: '#6366F1',
+  accent: '#F59E0B',
+};
+
+export const neutral = {
+  white: '#FFFFFF',
+  50: '#F8FAFC',
+  100: '#F1F5F9',
+  200: '#E2E8F0',
+  300: '#CBD5E1',
+  400: '#94A3B8',
+  500: '#64748B',
+  600: '#475569',
+  700: '#334155',
+  800: '#1E293B',
+  900: '#0F172A',
+};
+
+export const activityColors = {
+  running: '#F97316',
+  cycling: '#3B82F6',
+  walking: '#10B981',
+  gym: '#8B5CF6',
+  swimming: '#06B6D4',
+  yoga: '#EC4899',
+  calories: '#F97316',
+  steps: '#3B82F6',
+  active: '#8B5CF6',
+  default: '#64748B',
+};
+
+// Legacy Colors
+export const pureWhite = neutral.white;
+export const borderGray = neutral[200];
+export const charcoal = neutral[800];
+export const emeraldGreen = brand.primary;
+export const primary = brand.primary;
+export const secondary = brand.secondary;
+export const background = neutral.white;
+export const text = neutral[800];
+export const textSecondary = neutral[500];
+export const border = neutral[200];
+
+// Light Theme Colors
+const LightThemeColors = {
+  text: neutral[800],
+  background: neutral[50],
+  tint: brand.primary,
+  icon: neutral[500],
+  tabIconDefault: neutral[500],
+  tabIconSelected: brand.primary,
+  border: neutral[200],
+  cardBackground: neutral.white,
+  tabBarBackground: neutral.white,
+  tabBarBorder: neutral[200],
+  floatingButton: brand.primary,
+  floatingButtonIcon: neutral.white,
+};
+
+// Dark Theme Colors
+const DarkThemeColors = {
+  text: neutral[50],
+  background: neutral[900],
+  tint: brand.primaryLight,
+  icon: neutral[400],
+  tabIconDefault: neutral[400],
+  tabIconSelected: brand.primaryLight,
+  border: neutral[700],
+  cardBackground: neutral[800],
+  tabBarBackground: neutral[800],
+  tabBarBorder: neutral[700],
+  floatingButton: brand.primary,
+  floatingButtonIcon: neutral.white,
+};
+
+// Export Colors with proper light/dark themes
 export const Colors = {
-  // Primary Colors
-  pureWhite: '#FFFFFF',
-  borderGray: '#E6E7EB',
-  charcoal: '#0D1B12',
-  emeraldGreen: '#0dbf49ff',
-  
-  // Semantic Colors
-  primary: '#0dbf49ff',
-  secondary: '#E6E7EB',
-  background: '#FFFFFF',
-  text: '#0D1B12',
-  textSecondary: '#687076',
-  border: '#E6E7EB',
-  
-  // Light/Dark mode compatibility
-  light: {
-    text: '#0D1B12',
-    background: '#F8F9FA',
-    tint: '#0dbf49ff',
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: '#0dbf49ff',
-    border: '#E6E7EB',
-    cardBackground: '#FFFFFF',
-    tabBarBackground: '#FFFFFF',
-    tabBarBorder: '#E6E7EB',
-    floatingButton: '#0dbf49ff',
-    floatingButtonIcon: '#0D1B12',
-  },
-  dark: {
-    text: '#FFFFFF',
-    background: '#0D1B12',
-    tint: '#0dbf49ff',
-    icon: '#E6E7EB',
-    tabIconDefault: '#E6E7EB',
-    tabIconSelected: '#0dbf49ff',
-    border: '#1A2E1F',
-    cardBackground: '#1A2E1F',
-    tabBarBackground: '#0D1B12',
-    tabBarBorder: '#1A2E1F',
-    floatingButton: '#0dbf49ff',
-    floatingButtonIcon: '#FFFFFF',
-  },
+  pureWhite: neutral.white,
+  borderGray: neutral[200],
+  charcoal: neutral[800],
+  emeraldGreen: brand.primary,
+  primary: brand.primary,
+  secondary: brand.secondary,
+  background: neutral.white,
+  text: neutral[800],
+  textSecondary: neutral[500],
+  border: neutral[200],
+  light: LightThemeColors,
+  dark: DarkThemeColors,
+  brand,
+  neutral,
+  activityColors,
 };
 
 // Typography

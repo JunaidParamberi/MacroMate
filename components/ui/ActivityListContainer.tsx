@@ -1,6 +1,5 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle, useColorScheme } from 'react-native';
 import { BorderRadius, Colors, Spacing } from '../../constants/theme';
 
 export interface ActivityListContainerProps {
@@ -16,8 +15,9 @@ export const ActivityListContainer: React.FC<ActivityListContainerProps> = ({
   padding = 'md',
   margin,
 }) => {
-  const colorScheme = useColorScheme() ?? 'light';
-  const dynamicColors = Colors[colorScheme];
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const themeColors = isDark ? Colors.dark : Colors.light;
   
   const getSpacingValue = (value: keyof typeof Spacing | number): number => {
     if (typeof value === 'number') return value;
@@ -32,7 +32,7 @@ export const ActivityListContainer: React.FC<ActivityListContainerProps> = ({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: dynamicColors?.cardBackground || Colors.pureWhite, borderColor: dynamicColors?.border || Colors.border }, containerStyle, style]}>
+    <View style={[styles.container, { backgroundColor: themeColors.cardBackground, borderColor: themeColors.border }, containerStyle, style]}>
       {children}
     </View>
   );
@@ -40,10 +40,8 @@ export const ActivityListContainer: React.FC<ActivityListContainerProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.pureWhite,
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
-    borderColor: Colors.border,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

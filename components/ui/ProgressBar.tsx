@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, useColorScheme, View } from 'react-native';
 import { Colors } from '../../constants/theme';
 
 export interface ProgressBarProps {
@@ -13,14 +13,17 @@ export interface ProgressBarProps {
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   height = 6,
-  backgroundColor = Colors.borderGray,
-  progressColor = Colors.emeraldGreen,
+  backgroundColor,
+  progressColor = Colors.brand.primary,
   style,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const finalBgColor = backgroundColor || (isDark ? Colors.neutral[700] : Colors.borderGray);
   const clampedProgress = Math.min(1, Math.max(0, progress));
 
   return (
-    <View style={[styles.container, { height, backgroundColor }, style]}>
+    <View style={[styles.container, { height, backgroundColor: finalBgColor }, style]}>
       <View
         style={[
           styles.progress,

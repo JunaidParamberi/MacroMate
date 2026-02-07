@@ -25,7 +25,8 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const colorScheme = useColorScheme() ?? 'light' as 'light' | 'dark';
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === 'dark' ? Colors.dark : Colors.light;
 
   const handleTabPress = (tabName: string) => {
     if (onTabPress) {
@@ -58,8 +59,8 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
       style={[
         styles.container,
         { 
-          backgroundColor: Colors[colorScheme].tabBarBackground,
-          borderTopColor: Colors[colorScheme].tabBarBorder,
+          backgroundColor: theme.tabBarBackground,
+          borderTopColor: theme.tabBarBorder,
         }
       ]}
       edges={['bottom']}
@@ -88,8 +89,8 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
                   styles.tabLabel,
                   {
                     color: isActiveTab(tab.name)
-                      ? Colors[colorScheme].tabIconSelected
-                      : Colors[colorScheme].tabIconDefault,
+                      ? theme.tabIconSelected
+                      : theme.tabIconDefault,
                   },
                 ]}
               >
@@ -104,7 +105,7 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
           style={[
             styles.floatingButton,
             {
-              backgroundColor: Colors[colorScheme].floatingButton,
+              backgroundColor: theme.floatingButton,
             },
           ]}
           onPress={handleFloatingButtonPress}
@@ -114,7 +115,7 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
             name="add"
             library="ionicons"
             size={28}
-            color={Colors[colorScheme].floatingButtonIcon}
+            color={theme.floatingButtonIcon}
           />
         </TouchableOpacity>
 
@@ -141,8 +142,8 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
                   styles.tabLabel,
                   {
                     color: isActiveTab(tab.name)
-                      ? Colors[colorScheme].tabIconSelected
-                      : Colors[colorScheme].tabIconDefault,
+                      ? Colors.light.tabIconSelected
+                      : Colors.light.tabIconDefault,
                   },
                 ]}
               >
@@ -157,32 +158,39 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
 };
 
 // Pre-configured tabs for the fitness app
-export const fitnessTabs: TabItem[] = [
-  {
-    name: 'index',
-    label: 'Home',
-    icon: <FitnessIcons.Home size={24} color={Colors.light.tabIconDefault} />,
-    activeIcon: <FitnessIcons.Home size={24} color={Colors.light.tabIconSelected} />,
-  },
-  {
-    name: 'activity',
-    label: 'Activity',
-    icon: <FitnessIcons.Chart size={24} color={Colors.light.tabIconDefault} />,
-    activeIcon: <FitnessIcons.Chart size={24} color={Colors.light.tabIconSelected} />,
-  },
-  {
-    name: 'goals',
-    label: 'Goals',
-    icon: <FitnessIcons.Trophy size={24} color={Colors.light.tabIconDefault} />,
-    activeIcon: <FitnessIcons.Trophy size={24} color={Colors.light.tabIconSelected} />,
-  },
-  {
-    name: 'profile',
-    label: 'Profile',
-    icon: <FitnessIcons.Profile size={24} color={Colors.light.tabIconDefault} />,
-    activeIcon: <FitnessIcons.Profile size={24} color={Colors.light.tabIconSelected} />,
-  },
-];
+export const useFitnessTabs = () => {
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === 'dark' ? Colors.dark : Colors.light;
+  
+  const fitnessTabs: TabItem[] = [
+    {
+      name: 'index',
+      label: 'Home',
+      icon: <FitnessIcons.Home size={24} color={theme.tabIconDefault} />,
+      activeIcon: <FitnessIcons.Home size={24} color={theme.tabIconSelected} />,
+    },
+    {
+      name: 'activity',
+      label: 'Activity',
+      icon: <FitnessIcons.Chart size={24} color={theme.tabIconDefault} />,
+      activeIcon: <FitnessIcons.Chart size={24} color={theme.tabIconSelected} />,
+    },
+    {
+      name: 'goals',
+      label: 'Goals',
+      icon: <FitnessIcons.Trophy size={24} color={theme.tabIconDefault} />,
+      activeIcon: <FitnessIcons.Trophy size={24} color={theme.tabIconSelected} />,
+    },
+    {
+      name: 'profile',
+      label: 'Profile',
+      icon: <FitnessIcons.Profile size={24} color={theme.tabIconDefault} />,
+      activeIcon: <FitnessIcons.Profile size={24} color={theme.tabIconSelected} />,
+    },
+  ];
+  
+  return fitnessTabs;
+};
 
 const styles = StyleSheet.create({
   container: {
