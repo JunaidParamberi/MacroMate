@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, useColorScheme, View, ViewStyle } from 'react-native';
-import { BorderRadius, Colors, Shadows, Spacing } from '../../constants/theme';
+import { Colors, Shadows } from '../../constants/theme';
+import { CircularProgress } from './CircularProgress';
 import { Icon, IconLibrary } from './Icon';
 import { ProgressBar } from './ProgressBar';
 import { Typography } from './Typography';
@@ -31,6 +32,10 @@ export interface ActivityCardProps {
   showGoal?: boolean;
   showAdditionalInfo?: boolean;
   featured?: boolean;
+  // Dynamic stats for featured card
+  foodValue?: string;
+  exerciseValue?: string;
+  baseGoalValue?: string;
 }
 
 const getThemeConfig = (theme: ActivityCardTheme) => {
@@ -164,6 +169,10 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   showGoal = true,
   showAdditionalInfo = true,
   featured = false,
+  // Dynamic stats
+  foodValue,
+  exerciseValue = '0 kcal',
+  baseGoalValue,
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -179,6 +188,10 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   const cardIconSize = iconSize || variantConfig.iconSize;
 
   const isFeatured = variant === 'featured' || featured;
+  
+  // For featured variant with ring, hide the value/goal text since they're in the ring
+  const showValueText = !isFeatured || !showProgressBar;
+  const showGoalText = showGoal && goal && (!isFeatured || !showProgressBar);
   
   // Dynamic card background
   const cardBackgroundColor = isFeatured 
@@ -219,9 +232,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         )}
 
         {/* Main value */}
-        <Typography variant={variantConfig.valueVariant} style={{...styles.value, color: valueColor} as any}>
-          {value}
-        </Typography>
+        {showValueText && (
+          <Typography variant={variantConfig.valueVariant} style={{...styles.value, color: valueColor} as any}>
+            {value}
+          </Typography>
+        )}
 
         {/* Subtitle */}
         {subtitle && (
@@ -231,15 +246,69 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         )}
 
         {/* Goal text */}
-        {showGoal && goal && (
+        {showGoalText && (
           <Typography variant="caption" style={{...styles.goal, color: subtitleColor} as any}>
             {goal}
           </Typography>
         )}
 
-        {/* Progress bar */}
-        {showProgressBar && progress > 0 && (
-          <ProgressBar progress={progress} style={styles.progressBar} progressColor={cardProgressColor} />
+        {/* Progress bar or ring */}
+        {showProgressBar && (
+          isFeatured ? (
+            <View style={styles.featuredLayout}>
+              {/* Left side - Ring with value */}
+              <View style={styles.ringSection}>
+                <CircularProgress 
+                  progress={progress || 0} 
+                  size={140} 
+                  strokeWidth={10} 
+                  progressColor={cardProgressColor}
+                  backgroundColor={isDark ? Colors.neutral[700] : Colors.neutral[200]}
+                  value={progress > 0 ? Math.round(parseInt(value.replace(/,/g, '')) * (1 - progress)).toString() : value}
+                  label={progress > 0 ? "Remaining" : "Consumed"}
+                />
+              </View>
+              
+              {/* Right side - Stats */}
+              <View style={styles.statsSection}>
+                <View style={styles.statRow}>
+                  <View style={[styles.statIcon, { backgroundColor: Colors.activityColors.calories + '20' }]}>
+                    <Icon name="flame" library="ionicons" size={18} color={Colors.activityColors.calories} />
+                  </View>
+                  <View>
+                    <Typography variant="caption" style={{ color: subtitleColor }}>Food</Typography>
+                    <Typography variant="bodyText" style={{ fontWeight: '700', color: valueColor }}>
+                      {foodValue || `${value} kcal`}
+                    </Typography>
+                  </View>
+                </View>
+                <View style={styles.statRow}>
+                  <View style={[styles.statIcon, { backgroundColor: Colors.activityColors.running + '20' }]}>
+                    <Icon name="walk" library="ionicons" size={18} color={Colors.activityColors.running} />
+                  </View>
+                  <View>
+                    <Typography variant="caption" style={{ color: subtitleColor }}>Exercise</Typography>
+                    <Typography variant="bodyText" style={{ fontWeight: '700', color: valueColor }}>
+                      {exerciseValue || '0 kcal'}
+                    </Typography>
+                  </View>
+                </View>
+                <View style={styles.statRow}>
+                  <View style={[styles.statIcon, { backgroundColor: Colors.brand.primary + '20' }]}>
+                    <Icon name="flag" library="ionicons" size={18} color={Colors.brand.primary} />
+                  </View>
+                  <View>
+                    <Typography variant="caption" style={{ color: subtitleColor }}>Target</Typography>
+                    <Typography variant="bodyText" style={{ fontWeight: '700', color: valueColor }}>
+                      {baseGoalValue || (goal ? goal.replace('/ ', '') : '0 kcal')}
+                    </Typography>
+                  </View>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <ProgressBar progress={progress || 0} style={styles.progressBar} progressColor={cardProgressColor} />
+          )
         )}
 
         {/* Additional info */}
@@ -257,58 +326,91 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: BorderRadius.card,
-    overflow: 'hidden',
+    borderRadius: 20,
     ...Shadows.md,
   },
   featuredContainer: {
     ...Shadows.lg,
+    borderRadius: 24,
   },
   cardInner: {
-    padding: Spacing.cardPadding,
-    minHeight: 100,
+    padding: 20,
+    minHeight: 120,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.sm,
+    marginRight: 12,
   },
   title: {
     flex: 1,
-    fontWeight: '500',
+    fontWeight: '600',
+    fontSize: 15,
   },
   value: {
-    fontWeight: '700',
-    fontSize: 28,
-    marginBottom: 4,
+    fontWeight: '800',
+    fontSize: 32,
+    marginBottom: 6,
+    letterSpacing: -0.5,
+    lineHeight: 38,
   },
   subtitle: {
-    fontSize: 12,
-    marginBottom: 4,
+    fontSize: 13,
+    marginBottom: 6,
+    fontWeight: '500',
   },
   goal: {
-    fontSize: 12,
-    marginBottom: Spacing.sm,
+    fontSize: 13,
+    marginBottom: 12,
+    fontWeight: '500',
   },
   progressBar: {
-    marginTop: Spacing.sm,
-    marginBottom: Spacing.xs,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  featuredLayout: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    marginBottom: 4,
+    gap: 16,
+  },
+  ringSection: {
+    flex: 1.2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statsSection: {
+    flex: 1,
+    gap: 10,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   additionalInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 6,
   },
   additionalInfo: {
-    fontWeight: '600',
-    fontSize: 13,
+    fontWeight: '700',
+    fontSize: 14,
   },
 });

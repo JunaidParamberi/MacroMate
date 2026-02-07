@@ -17,18 +17,9 @@ import LogModal from "@/components/log/LogModal";
 // Center Log Button Component
 function CenterLogButton({ logModalVisible, setLogModalVisible }: { logModalVisible: boolean; setLogModalVisible: (v: boolean) => void }) {
   const scale = useSharedValue(1);
-  const rotate = useSharedValue(0);
-
-  React.useEffect(() => {
-    rotate.value = withTiming(logModalVisible ? 90 : 0, { duration: 200 });
-  }, [logModalVisible]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotate.value}deg` },
-
-    ],
+    transform: [{ scale: scale.value }],
   }));
 
   return (
@@ -44,12 +35,8 @@ function CenterLogButton({ logModalVisible, setLogModalVisible }: { logModalVisi
       onPress={() => setLogModalVisible(!logModalVisible)}
     >
       <Animated.View style={[styles.floatingButton, animatedStyle]}>
-        <View style={[styles.gradientButton, logModalVisible && { backgroundColor: Colors.brand.accent }]}>
-          {logModalVisible ? (
-            <Ionicons name="close" size={28} color={Colors.neutral.white} />
-          ) : (
-            <Ionicons name="add" size={32} color={Colors.neutral.white} />
-          )}
+        <View style={styles.gradientButton}>
+          <Ionicons name="add" size={32} color={Colors.neutral.white} />
         </View>
       </Animated.View>
     </Pressable>
@@ -96,20 +83,20 @@ export default function TabLayout() {
             backgroundColor: isDark ? Colors.neutral[900] : Colors.neutral.white,
             borderTopWidth: 0,
             elevation: 0,
-            height: logModalVisible ? 0 : 85,
-            paddingBottom: logModalVisible ? 0 : 20,
-            paddingTop: logModalVisible ? 0 : 10,
+            height: 85,
+            paddingBottom: 20,
+            paddingTop: 10,
             position: 'absolute',
             bottom: 0,
             left: 20,
             right: 20,
-            borderRadius: logModalVisible ? 0 : 30,
+            borderRadius: 30,
             marginHorizontal: 0,
             shadowColor: Colors.brand.primary,
             shadowOffset: { width: 0, height: -4 },
             shadowOpacity: isDark ? 0.3 : 0.15,
             shadowRadius: 20,
-            display: logModalVisible ? 'none' : 'flex',
+            display: 'flex',
           },
           tabBarItemStyle: {
             height: 50,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TextStyle, useColorScheme } from 'react-native';
+import { StyleProp, Text, TextStyle, useColorScheme } from 'react-native';
 import { Colors, Typography as TypographyStyles } from '../../constants/theme';
 
 export type TypographyVariant = 
@@ -15,7 +15,7 @@ export type TypographyVariant =
 export interface TypographyProps {
   variant?: TypographyVariant;
   children: React.ReactNode;
-  style?: TextStyle;
+  style?: StyleProp<TextStyle>;
   color?: string;
   numberOfLines?: number;
   textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';

@@ -1,5 +1,5 @@
 import { ActivityListItem, Screen, ScreenContent, Typography } from '@/components/ui';
-import { Colors, Shadows, Spacing } from '@/constants/theme';
+import { Colors, Shadows } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -183,7 +183,7 @@ const getStyles = (isDark: boolean) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 28,
     paddingTop: 8,
   },
   backButton: {
@@ -197,28 +197,28 @@ const getStyles = (isDark: boolean) => StyleSheet.create({
   },
   saveButton: {
     backgroundColor: Colors.brand.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 14,
   },
   saveText: {
     color: Colors.neutral.white,
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 14,
   },
   avatarSection: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   avatarLarge: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: isDark ? Colors.neutral[700] : Colors.neutral[200],
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
-    borderWidth: 4,
+    marginBottom: 10,
+    borderWidth: 3,
     borderColor: isDark ? Colors.neutral[600] : Colors.neutral[300],
   },
   changePhotoButton: {
@@ -233,17 +233,20 @@ const getStyles = (isDark: boolean) => StyleSheet.create({
     padding: 20,
     marginBottom: 16,
     ...Shadows.sm,
+    borderWidth: 1,
+    borderColor: isDark ? Colors.neutral[700] : Colors.neutral[100],
   },
   sectionTitle: {
-    fontWeight: '700',
+    fontWeight: '600',
     marginBottom: 16,
     color: isDark ? Colors.neutral[50] : Colors.neutral[800],
+    fontSize: 16,
   },
   inputGroup: {
     marginBottom: 16,
   },
   inputLabel: {
-    marginBottom: 8,
+    marginBottom: 10,
     color: isDark ? Colors.neutral[400] : Colors.neutral[600],
   },
   input: {
@@ -251,7 +254,7 @@ const getStyles = (isDark: boolean) => StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
+    fontSize: 15,
     color: isDark ? Colors.neutral[50] : Colors.neutral[800],
     borderWidth: 1,
     borderColor: isDark ? Colors.neutral[600] : Colors.neutral[200],
@@ -265,9 +268,9 @@ const getStyles = (isDark: boolean) => StyleSheet.create({
   },
   dateInput: {
     backgroundColor: isDark ? Colors.neutral[700] : Colors.neutral[100],
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -276,9 +279,9 @@ const getStyles = (isDark: boolean) => StyleSheet.create({
   },
   selectInput: {
     backgroundColor: isDark ? Colors.neutral[700] : Colors.neutral[100],
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

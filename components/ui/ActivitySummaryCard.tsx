@@ -216,8 +216,9 @@ export const AITipCard: React.FC<AITipCardProps> = ({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    padding: Spacing.md,
-    marginVertical: 4,
+    padding: 20,
+    marginVertical: 6,
+    borderRadius: 20,
   },
   disabled: {
     opacity: 0.5,
@@ -225,83 +226,87 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: 14,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.md,
+    marginRight: 16,
   },
   titleContainer: {
     flex: 1,
   },
   title: {
-    fontWeight: '600',
-    marginBottom: 2,
+    fontWeight: '700',
+    marginBottom: 3,
+    fontSize: 16,
   },
   category: {
-    // color set dynamically inline
+    fontSize: 13,
+    fontWeight: '500',
   },
   aiBadge: {
     backgroundColor: Colors.brand.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
   },
   aiBadgeText: {
     color: Colors.neutral.white,
-    fontWeight: '600',
-    fontSize: 10,
+    fontWeight: '700',
+    fontSize: 11,
   },
   tipContainer: {
-    marginBottom: Spacing.sm,
+    marginBottom: 14,
   },
   tipText: {
-    lineHeight: 20,
-    // color set dynamically inline
+    lineHeight: 22,
+    fontSize: 15,
   },
   confidenceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: 14,
   },
   confidenceLabel: {
-    // color set dynamically inline
-    marginRight: Spacing.sm,
-    minWidth: 80,
+    fontSize: 13,
+    fontWeight: '500',
+    marginRight: 12,
+    minWidth: 85,
   },
   confidenceBar: {
     flex: 1,
-    height: 4,
-    // backgroundColor set dynamically inline
-    borderRadius: 2,
+    height: 5,
+    borderRadius: 3,
     overflow: 'hidden',
-    marginRight: Spacing.sm,
+    marginRight: 12,
   },
   confidenceFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   confidenceValue: {
-    // color set dynamically inline
-    minWidth: 35,
+    fontSize: 13,
+    fontWeight: '600',
+    minWidth: 40,
     textAlign: 'right',
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
     borderWidth: 1,
-    borderRadius: 8,
-    marginTop: Spacing.xs,
+    borderRadius: 12,
+    marginTop: 6,
   },
   actionText: {
-    marginRight: Spacing.xs,
-    fontWeight: '500',
+    marginRight: 8,
+    fontWeight: '600',
+    fontSize: 15,
   },
 });

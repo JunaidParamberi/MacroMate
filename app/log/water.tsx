@@ -1,10 +1,12 @@
 import { Screen, ScreenContent, Typography } from '@/components/ui';
 import { Colors, Shadows } from '@/constants/theme';
+import { useDailyLogStore } from '@/store/dailyLog';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, useColorScheme, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { Alert, Pressable, StyleSheet, useColorScheme, View } from 'react-native';
+import Animated, { FadeIn, FadeInUp, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 const CUP_SIZE = 250; // ml
 
@@ -12,6 +14,8 @@ export default function WaterLogScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const addWater = useDailyLogStore((state) => state.addWater);
+  
   const [cups, setCups] = useState(0);
   const [goal] = useState(8); // 8 cups goal
   
@@ -31,11 +35,29 @@ export default function WaterLogScreen() {
   const addCup = () => setCups(Math.min(cups + 1, goal + 4));
   const removeCup = () => setCups(Math.max(cups - 1, 0));
 
+  const handleLogWater = () => {
+    if (cups === 0) {
+      Alert.alert('No Water', 'Please add at least one cup of water');
+      return;
+    }
+    
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
+    const totalMl = cups * CUP_SIZE;
+    addWater(totalMl);
+    
+    Alert.alert(
+      'Water Logged!',
+      `${totalMl}ml (${cups} cups) added to your daily log.`,
+      [{ text: 'Great!', onPress: () => router.back() }]
+    );
+  };
+
   return (
     <Screen>
       <ScreenContent padding="md">
         {/* Header */}
-        <View style={styles.header}>
+        <Animated.View entering={FadeIn.duration(300)} style={styles.header}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={28} color={isDark ? Colors.neutral[300] : Colors.neutral[600]} />
           </Pressable>
@@ -43,10 +65,10 @@ export default function WaterLogScreen() {
             Log Water
           </Typography>
           <View style={{ width: 44 }} />
-        </View>
+        </Animated.View>
 
         {/* Water Visualization */}
-        <View style={styles.waterContainer}>
+        <Animated.View entering={FadeIn.delay(100)} style={styles.waterContainer}>
           <View style={[styles.glass, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral[200] }]}>
             <Animated.View style={[styles.water, animatedWaterStyle]} />
             
@@ -70,10 +92,10 @@ export default function WaterLogScreen() {
           <Typography variant="h3" style={{ marginTop: 8, color: isDark ? Colors.neutral[50] : Colors.neutral[800] }}>
             {cups * CUP_SIZE}ml / {goal * CUP_SIZE}ml
           </Typography>
-        </View>
+        </Animated.View>
 
         {/* Controls */}
-        <View style={styles.controls}>
+        <Animated.View entering={FadeIn.delay(200)} style={styles.controls}>
           <Pressable style={[styles.controlButton, { backgroundColor: isDark ? Colors.neutral[700] : Colors.neutral[200] }]} onPress={removeCup}>
             <Ionicons name="remove" size={24} color={isDark ? Colors.neutral[300] : Colors.neutral[600]} />
           </Pressable>
@@ -85,31 +107,32 @@ export default function WaterLogScreen() {
           <Pressable style={[styles.controlButton, { backgroundColor: isDark ? Colors.neutral[700] : Colors.neutral[200] }]} onPress={addCup}>
             <Ionicons name="add" size={24} color={isDark ? Colors.neutral[300] : Colors.neutral[600]} />
           </Pressable>
-        </View>
+        </Animated.View>
 
         {/* Presets */}
-        <View style={styles.presetsContainer}>
+        <Animated.View entering={FadeIn.delay(300)} style={styles.presetsContainer}>
           <Typography variant="metaLabel" style={{ marginBottom: 12, color: isDark ? Colors.neutral[400] : Colors.neutral[500] }}>
             Quick Add
           </Typography>
           <View style={styles.presets}>
-            {[1, 2, 3].map((num) => (
-              <Pressable
-                key={num}
-                style={[styles.presetButton, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral[100] }]}
-                onPress={() => setCups(cups + num)}
-              >
-                <Ionicons name="water" size={20} color={Colors.activityColors.active} />
-                <Typography variant="caption" style={{ marginLeft: 6, color: isDark ? Colors.neutral[300] : Colors.neutral[600] }}>
-                  +{num}
-                </Typography>
-              </Pressable>
+            {[1, 2, 3].map((num, index) => (
+              <Animated.View key={num} entering={FadeIn.delay(350 + index * 40)} style={{ flex: 1 }}>
+                <Pressable
+                  style={[styles.presetButton, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral[100] }]}
+                  onPress={() => setCups(cups + num)}
+                >
+                  <Ionicons name="water" size={20} color={Colors.activityColors.active} />
+                  <Typography variant="caption" style={{ marginLeft: 6, color: isDark ? Colors.neutral[300] : Colors.neutral[600] }}>
+                    +{num}
+                  </Typography>
+                </Pressable>
+              </Animated.View>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         {/* History */}
-        <View style={[styles.historyCard, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral.white }]}>
+        <Animated.View entering={FadeIn.delay(400)} style={[styles.historyCard, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral.white }]}>
           <Typography variant="h3" style={{ marginBottom: 12, color: isDark ? Colors.neutral[50] : Colors.neutral[800] }}>
             Today's Log
           </Typography>
@@ -130,12 +153,17 @@ export default function WaterLogScreen() {
               No water logged yet today
             </Typography>
           )}
-        </View>
+        </Animated.View>
 
         {/* Save Button */}
-        <Pressable style={[styles.saveButton, { backgroundColor: Colors.activityColors.active }]}>
-          <Typography variant="bodyText" style={styles.saveText}>Log Water</Typography>
-        </Pressable>
+        <Animated.View entering={FadeInUp.delay(500)}>
+          <Pressable 
+            style={[styles.saveButton, { backgroundColor: Colors.activityColors.active }]} 
+            onPress={handleLogWater}
+          >
+            <Typography variant="bodyText" style={styles.saveText}>Log Water</Typography>
+          </Pressable>
+        </Animated.View>
       </ScreenContent>
     </Screen>
   );
@@ -146,20 +174,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
-    paddingTop: 8,
+    marginBottom: 20,
+    paddingTop: 4,
   },
   backButton: {
-    padding: 8,
-    marginLeft: -8,
+    padding: 6,
+    marginLeft: -6,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '600',
   },
   waterContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 28,
   },
   glass: {
     width: 120,
@@ -177,12 +205,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: Colors.activityColors.active,
-    opacity: 0.8,
+    opacity: 0.85,
   },
   measurementLine: {
     position: 'absolute',
-    left: 8,
-    right: 8,
+    left: 10,
+    right: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -194,35 +222,36 @@ const styles = StyleSheet.create({
   cupCount: {
     fontSize: 48,
     fontWeight: '700',
+    letterSpacing: -0.5,
   },
   controls: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 24,
-    marginBottom: 32,
+    gap: 20,
+    marginBottom: 28,
   },
   controlButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.md,
+    ...Shadows.sm,
   },
   presetsContainer: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   presets: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
   },
   presetButton: {
     flex: 1,
@@ -235,21 +264,22 @@ const styles = StyleSheet.create({
   historyCard: {
     borderRadius: 20,
     padding: 20,
-    marginBottom: 24,
+    marginBottom: 20,
     ...Shadows.sm,
   },
   logItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
   },
   saveButton: {
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     alignItems: 'center',
   },
   saveText: {
     color: Colors.neutral.white,
     fontWeight: '600',
+    fontSize: 15,
   },
 });

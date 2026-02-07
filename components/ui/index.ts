@@ -28,10 +28,13 @@ export {
 export { Card, MasterCard, MetricCard } from './Card';
 export { FitnessIcons, Icon } from './Icon';
 export { ListRow } from './ListRow';
+export { LoadingScreen } from './LoadingScreen';
+export { Logo } from './Logo';
 export { BodyText, Caption, H1, H2, H3, HeadlineDisplay, Link, MetaLabel, Typography } from './Typography';
 
 // Charts
 export { AreaChart, ProgressBar, SegmentRing } from './Charts';
+export { CircularProgress } from './CircularProgress';
 
 // Data Display
 export { DataToken, Label, MetricCard as MetricCardComponent, Stats } from './DataDisplay';

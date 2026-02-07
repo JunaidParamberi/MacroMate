@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Dimensions, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 const ICON_SIZE = (width - 80) / 4;
@@ -45,13 +45,19 @@ export default function LogModal({ visible, onClose, isDark }: LogModalProps) {
     transform: [{ translateY: translateY.value }],
   }));
 
+  const handleClose = () => {
+    translateY.value = withTiming(300, { duration: 200 }, () => {
+      runOnJS(onClose)();
+    });
+  };
+
   const topRow = logOptions.slice(0, 4);
   const bottomRow = logOptions.slice(4);
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={styles.backdrop} onPress={handleClose} />
         <Animated.View style={[styles.modal, modalStyle, { backgroundColor: isDark ? Colors.neutral[900] : Colors.neutral.white }]}>
           <View style={styles.handle} />
           <View style={styles.grid}>

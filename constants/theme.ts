@@ -39,6 +39,7 @@ export const activityColors = {
   steps: '#3B82F6',
   active: '#8B5CF6',
   default: '#64748B',
+  heart: '#ff0000ff',
 };
 
 // Legacy Colors
@@ -102,6 +103,7 @@ export const Colors = {
   brand,
   neutral,
   activityColors,
+  cardio: activityColors.heart,
 };
 
 // Typography
