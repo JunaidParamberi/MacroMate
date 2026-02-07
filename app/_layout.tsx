@@ -1,3 +1,4 @@
+import ChatBubble from '@/components/ChatBubble';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -59,7 +60,9 @@ function RootLayoutNav() {
             title: 'Modal',
           }}
         />
+        <Stack.Screen name="trainer" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>
+      <ChatBubble />
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </ThemeProvider>
   );

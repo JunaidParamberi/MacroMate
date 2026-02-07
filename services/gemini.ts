@@ -366,6 +366,44 @@ Respond with 2-3 sentences max. Be encouraging and specific about their progress
       return `Great week! You averaged ${Math.round(stats.avgDailyCalories)} calories and completed ${stats.totalWorkouts} workouts. Keep pushing!`;
     }
   }
+
+  async chatWithTrainer(userMessage: string, userContext: string): Promise<string> {
+    if (!ai) {
+      throw new Error('Gemini API not initialized');
+    }
+
+    try {
+      const response = await ai.models.generateContent({
+        model: MODEL_NAME,
+        contents: `You are an expert AI Fitness Trainer. Provide helpful, encouraging, and accurate fitness advice. Be conversational but professional.
+
+User Context:
+${userContext}
+
+User Message: "${userMessage}"
+
+Guidelines:
+- Keep responses concise (2-4 sentences max)
+- Be encouraging and motivational
+- Reference their specific goals and progress when relevant
+- Provide actionable advice
+- If they ask about meals, suggest foods that fit their macros
+- If they ask about workouts, consider their goals
+- Be honest about what you can/cannot do
+
+Respond naturally as a fitness trainer would.`,
+        config: {
+          temperature: 0.7,
+          maxOutputTokens: 300,
+        },
+      });
+
+      return response.text?.trim() || "I'm here to help with your fitness journey! What would you like to know?";
+    } catch (error) {
+      console.error('Trainer chat error:', error);
+      return "I'm having trouble connecting right now. Try asking about your meal plan, workout ideas, or progress tracking!";
+    }
+  }
 }
 
 export const geminiService = new GeminiService();
