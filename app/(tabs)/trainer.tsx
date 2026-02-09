@@ -10,18 +10,19 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
+  InteractionManager,
   Keyboard,
   Platform,
   Pressable,
   Animated as RNAnimated,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   TextInput,
   useColorScheme,
-  View,
+  View
 } from 'react-native';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Message {
   id: string;
@@ -29,6 +30,75 @@ interface Message {
   content: string;
   timestamp: Date;
 }
+
+const TypingIndicator = ({ isDark }: { isDark: boolean }) => {
+  const dotValues = useRef([0, 1, 2].map(() => new RNAnimated.Value(0.3))).current;
+
+  useEffect(() => {
+    const animations = dotValues.map((value, index) =>
+      RNAnimated.loop(
+        RNAnimated.sequence([
+          RNAnimated.delay(index * 150),
+          RNAnimated.timing(value, {
+            toValue: 1,
+            duration: 280,
+            useNativeDriver: true,
+          }),
+          RNAnimated.timing(value, {
+            toValue: 0.3,
+            duration: 280,
+            useNativeDriver: true,
+          }),
+        ])
+      )
+    );
+
+    animations.forEach((anim) => anim.start());
+    return () => animations.forEach((anim) => anim.stop && anim.stop());
+  }, [dotValues]);
+
+  return (
+    <View style={[styles.messageRow, styles.assistantRow]}>
+      <View style={[styles.avatar, { backgroundColor: Colors.brand.primary }]}>
+        <Ionicons name="fitness" size={16} color={Colors.neutral.white} />
+      </View>
+      <View
+        style={[
+          styles.messageBubble,
+          styles.assistantBubble,
+          { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral[100] },
+        ]}
+      >
+        <View style={styles.typingDotsRow}>
+          {dotValues.map((value, index) => (
+            <RNAnimated.View
+              key={`dot-${index}`}
+              style={[
+                styles.typingDot,
+                {
+                  backgroundColor: isDark ? Colors.neutral[400] : Colors.neutral[500],
+                  opacity: value,
+                  transform: [
+                    {
+                      scale: value.interpolate({
+                        inputRange: [0.3, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const TAB_BAR_HEIGHT = 85;
+const INPUT_AREA_HEIGHT = 60;
+const STREAM_INTERVAL_MS = 10;
 
 const quickActions = [
   { id: 'meal', label: '💡 Meal Ideas', prompt: 'Suggest some healthy meal ideas for today based on my macros' },
@@ -41,8 +111,12 @@ export default function TrainerScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const insets = useSafeAreaInsets();
+  const inputSurfaceColor = isDark ? Colors.neutral[900] : Colors.neutral.white;
   const flatListRef = useRef<FlatList>(null);
-  const keyboardAnimation = useRef(new RNAnimated.Value(0)).current;
+  const inputBottomPosition = useRef(new RNAnimated.Value(0)).current;
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -54,6 +128,71 @@ export default function TrainerScreen() {
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const scrollToBottom = useCallback((delay: number = 0) => {
+    const clampedDelay = Math.max(0, delay);
+    const executeScroll = () => {
+      if (!flatListRef.current || messages.length === 0) return;
+
+      const scrollAction = () => {
+        const lastIndex = Math.max(messages.length - 1, 0);
+        try {
+          flatListRef.current?.scrollToIndex({ index: lastIndex, animated: true });
+        } catch {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }
+      };
+
+      InteractionManager.runAfterInteractions(scrollAction);
+    };
+
+    if (clampedDelay > 0) {
+      setTimeout(executeScroll, clampedDelay);
+    } else {
+      requestAnimationFrame(executeScroll);
+    }
+  }, [messages.length]);
+
+  const streamAssistantResponse = useCallback(
+    (response: string) =>
+      new Promise<void>((resolve) => {
+        const messageId = `${Date.now()}-assistant`;
+        const createdAt = new Date();
+        const characters = Array.from(response);
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: messageId,
+            role: 'assistant',
+            content: '',
+            timestamp: createdAt,
+          },
+        ]);
+
+        let index = 0;
+        const interval = setInterval(() => {
+          index += 1;
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === messageId
+                ? {
+                    ...message,
+                    content: characters.slice(0, index).join(''),
+                  }
+                : message
+            )
+          );
+          scrollToBottom(0);
+
+          if (index >= characters.length) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, STREAM_INTERVAL_MS);
+      }),
+    [scrollToBottom]
+  );
 
   const { 
     primaryGoal, 
@@ -72,18 +211,23 @@ export default function TrainerScreen() {
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
     const keyboardWillShow = Keyboard.addListener(showEvent, (e: any) => {
-      RNAnimated.timing(keyboardAnimation, {
-        toValue: e.endCoordinates.height,
-        duration: 250,
+      const height = e?.endCoordinates?.height || 0;
+      setKeyboardVisible(true);
+      setKeyboardHeight(height);
+      RNAnimated.timing(inputBottomPosition, {
+        toValue: height,
+        duration: Platform.OS === 'ios' ? 250 : 200,
         useNativeDriver: false,
       }).start();
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      scrollToBottom(250);
     });
 
     const keyboardWillHide = Keyboard.addListener(hideEvent, () => {
-      RNAnimated.timing(keyboardAnimation, {
+      setKeyboardVisible(false);
+      setKeyboardHeight(0);
+      RNAnimated.timing(inputBottomPosition, {
         toValue: 0,
-        duration: 250,
+        duration: Platform.OS === 'ios' ? 250 : 200,
         useNativeDriver: false,
       }).start();
     });
@@ -92,13 +236,18 @@ export default function TrainerScreen() {
       keyboardWillShow.remove();
       keyboardWillHide.remove();
     };
-  }, [keyboardAnimation]);
-
-  const scrollToEnd = useCallback(() => {
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
   }, []);
+
+  // Auto-scroll when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom(120);
+    }
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    scrollToBottom(0);
+  }, [scrollToBottom]);
 
   const handleSend = async (text: string = inputText) => {
     if (!text.trim()) return;
@@ -114,7 +263,7 @@ export default function TrainerScreen() {
     setInputText('');
     setIsLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    scrollToEnd();
+    scrollToBottom(80);
 
     try {
       const context = `
@@ -137,15 +286,7 @@ Coach Alex is friendly, encouraging, and provides actionable fitness advice. He 
 
       const response = await geminiService.chatWithTrainer(text.trim(), context);
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-      scrollToEnd();
+      await streamAssistantResponse(response);
     } catch (error) {
       console.error('Chat error:', error);
       Alert.alert('Error', 'Failed to get response. Please try again.');
@@ -209,7 +350,10 @@ Coach Alex is friendly, encouraging, and provides actionable fitness advice. He 
               style={[styles.quickActionChip, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral[100] }]}
               onPress={() => handleQuickAction(action.prompt)}
             >
-              <Typography variant="caption" style={[styles.quickActionText, { color: isDark ? Colors.neutral[300] : Colors.neutral[600] }]}>
+              <Typography
+                variant="caption"
+                style={[styles.quickActionText, { color: isDark ? Colors.neutral[300] : Colors.neutral[600] }]}
+              >
                 {action.label}
               </Typography>
             </Pressable>
@@ -219,15 +363,17 @@ Coach Alex is friendly, encouraging, and provides actionable fitness advice. He 
     </Animated.View>
   );
 
+  const bottomPadding = isKeyboardVisible 
+    ? keyboardHeight + INPUT_AREA_HEIGHT + 20
+    : TAB_BAR_HEIGHT + 80;
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? Colors.neutral[900] : Colors.neutral[50] }]}>
+    <View style={[styles.container, { backgroundColor: isDark ? Colors.neutral[900] : Colors.neutral[50] }]}>
       <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
       
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: isDark ? Colors.neutral[900] : Colors.neutral[50], borderBottomColor: isDark ? Colors.neutral[800] : Colors.neutral[200] }]}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="close" size={28} color={isDark ? Colors.neutral[300] : Colors.neutral[600]} />
-        </Pressable>
+      <View style={[styles.header, { backgroundColor: isDark ? Colors.neutral[900] : Colors.neutral[50], borderBottomColor: isDark ? Colors.neutral[800] : Colors.neutral[200] }]}>        
+        <View style={styles.backButton} />
         <View style={styles.headerCenter}>
           <View style={[styles.trainerAvatar, { backgroundColor: Colors.brand.primary }]}>
             <Ionicons name="fitness" size={24} color={Colors.neutral.white} />
@@ -245,24 +391,42 @@ Coach Alex is friendly, encouraging, and provides actionable fitness advice. He 
         <View style={{ width: 44 }} />
       </View>
 
-      {/* Chat Messages - Single FlatList, no nested ScrollViews */}
+      {/* Chat Messages */}
       <FlatList
         ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messagesList}
+        contentContainerStyle={[styles.messagesList, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={renderHeader}
+        ListFooterComponent={isLoading ? <TypingIndicator isDark={isDark} /> : null}
         keyboardShouldPersistTaps="handled"
-        onContentSizeChange={scrollToEnd}
+        onContentSizeChange={() => scrollToBottom(20)}
         removeClippedSubviews={false}
+        onLayout={() => scrollToBottom(0)}
+        onScrollToIndexFailed={({ averageItemLength, index }) => {
+          if (!averageItemLength || index < 0) return;
+          flatListRef.current?.scrollToOffset({
+            offset: averageItemLength * index,
+            animated: true,
+          });
+        }}
       />
 
-      {/* Input Area with animated keyboard padding */}
-      <RNAnimated.View style={{ paddingBottom: keyboardAnimation }}>
-        <View style={[styles.inputWrapper, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral[100] }]}>
-          <View style={[styles.inputContainer, { backgroundColor: isDark ? Colors.neutral[700] : Colors.neutral.white }]}>
+      {/* Input Area */}
+      <RNAnimated.View
+        style={[
+          styles.inputSection,
+          { 
+            backgroundColor: inputSurfaceColor,
+            bottom: inputBottomPosition,
+            paddingBottom: isKeyboardVisible ? 0 : TAB_BAR_HEIGHT,
+          }
+        ]}
+      >
+        <View style={styles.inputWrapper}>
+          <View style={[styles.inputContainer, { backgroundColor: isDark ? Colors.neutral[800] : Colors.neutral[100] }]}> 
             <TextInput
               style={[styles.input, { color: isDark ? Colors.neutral[50] : Colors.neutral[800] }]}
               placeholder="Message Coach Alex..."
@@ -294,7 +458,7 @@ Coach Alex is friendly, encouraging, and provides actionable fitness advice. He 
           </View>
         </View>
       </RNAnimated.View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -307,7 +471,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 48,
     paddingBottom: 12,
     borderBottomWidth: 1,
   },
@@ -370,7 +534,6 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     paddingTop: 8,
-    paddingBottom: 16,
   },
   messageRow: {
     flexDirection: 'row',
@@ -406,12 +569,16 @@ const styles = StyleSheet.create({
   assistantBubble: {
     borderBottomLeftRadius: 6,
   },
+  inputSection: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingTop: 8,
+  },
   inputWrapper: {
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    width: '100%',
-    borderRadius: 24,
-    
+    paddingBottom: 16,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -419,7 +586,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     paddingVertical: 4,
     paddingHorizontal: 4,
-
     ...Shadows.sm,
   },
   input: {
@@ -445,5 +611,15 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
+  },
+  typingDotsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  typingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
 });
